@@ -19,11 +19,12 @@ class RoleController extends Controller
         $id = $request->input('id');
         $name = $request->input('name');
         $limit = $request->input('limit', 6);
+        $with_responsibilities = $request->input('with_responsibilities', false);
 
         $roleQuery = Role::query();
         //powerhuman.com/api/role?id=1
         if ($id) {
-            $role = $roleQuery->find($id);
+            $role = $roleQuery->with('responsibility')->find($id);
             if($role) {
                 return ResponseFormatter::success($role, 'Role found');
             }
@@ -39,6 +40,11 @@ class RoleController extends Controller
             $roles->where('name', 'like', '%' . $name . '%');
             
         }
+
+        if($with_responsibilities) {
+            $roles->with('responsibility');
+        }
+
             return ResponseFormatter::success($roles->paginate($limit), 'Role found');
     }
 
